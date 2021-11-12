@@ -26,6 +26,7 @@ async function run() {
         const productsCollection = database.collection('products');
         const usersCollection = database.collection('users');
         const ordersCollection = database.collection('orders');
+        const reviewsCollection = database.collection('reviews');
         console.log(productsCollection);
 
         // user functions ===============================
@@ -46,7 +47,7 @@ async function run() {
             res.send(product);
         });
 
-        //post api add user
+        //post api ---add user
         app.post('/adduser', async (req, res) => {
             const user = req.body;
             const result = await usersCollection.insertOne(user);
@@ -61,28 +62,6 @@ async function run() {
             const user = await usersCollection.findOne(query);
             res.send(user);
         });
-
-
-
-        //update pending status
-        app.put('/updatePending', async (req, res) => {
-
-            const id = req.query.id;
-            console.log(req.query);
-            console.log("id:" + id)
-            const filter = { _id: ObjectId(id) };
-            console.log("filter: " + filter)
-            const updateDoc = {
-                $set: {
-                    pending: false
-                }
-            };
-            const result = await ordersCollection.updateOne(filter, updateDoc);
-            console.log(result);
-            res.json(result);
-        })
-
-
 
         // post api  - add an order 
         app.post('/order', async (req, res) => {
@@ -104,6 +83,22 @@ async function run() {
             console.log('hiiting my orders');
             res.send(orders);
 
+        });
+
+        // add a review 
+        app.post('/review', async (req, res) => {
+
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
+            console.log(result);
+            res.json(result);
+        });
+        // get api ----->all reviews
+        app.get('/reviews', async (req, res) => {
+            const cursor = reviewsCollection.find({});
+            const reviews = await cursor.toArray();
+            console.log('hiiting all reviews');
+            res.send(reviews);
         });
 
 
@@ -128,6 +123,31 @@ async function run() {
             res.send(orders);
 
         });
+        // get all users 
+        app.get('/users', async (req, res) => {
+
+            const cursor = usersCollection.find({});
+            const users = await cursor.toArray(cursor);
+            res.send(users);
+        });
+
+        //update pending status
+        app.put('/updatePending', async (req, res) => {
+
+            const id = req.query.id;
+            console.log(req.query);
+            console.log("id:" + id)
+            const filter = { _id: ObjectId(id) };
+            console.log("filter: " + filter)
+            const updateDoc = {
+                $set: {
+                    pending: false
+                }
+            };
+            const result = await ordersCollection.updateOne(filter, updateDoc);
+            console.log(result);
+            res.json(result);
+        })
 
     }
     finally {
