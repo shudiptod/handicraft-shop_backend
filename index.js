@@ -102,18 +102,28 @@ async function run() {
         });
 
 
-        // delete api 
-        app.delete('/bookings', async (req, res) => {
+
+
+        // admin functions =====================================
+
+        // add a product 
+        app.post('/addProduct', async (req, res) => {
+
+            const product = req.body;
+            const result = await productsCollection.insertOne(product);
+            console.log(result);
+            res.json(result);
+        });
+        // delete products 
+        app.delete('/products', async (req, res) => {
 
             const id = req.query.id;
             const query = { _id: ObjectId(id) };
             console.log("id: " + id);
             console.log("query: " + query);
-            const result = await ordersCollection.deleteOne(query);
+            const result = await productsCollection.deleteOne(query);
             res.json(result);
         });
-
-        // admin functions =====================================
 
         // get all user orders 
         app.get('/allorders', async (req, res) => {
@@ -132,19 +142,37 @@ async function run() {
         });
 
         //update pending status
-        app.put('/updatePending', async (req, res) => {
+
+        app.put('/updateStatus', async (req, res) => {
 
             const id = req.query.id;
             console.log(req.query);
-            console.log("id:" + id)
+
             const filter = { _id: ObjectId(id) };
-            console.log("filter: " + filter)
+
             const updateDoc = {
                 $set: {
-                    pending: false
+                    status: "shipped"
                 }
             };
             const result = await ordersCollection.updateOne(filter, updateDoc);
+            console.log(result);
+            res.json(result);
+        })
+
+        app.put('/makeadmin', async (req, res) => {
+
+            const id = req.query.id;
+            console.log(req.query);
+
+            const filter = { _id: ObjectId(id) };
+            console.log("filter: " + filter.admin)
+            const updateDoc = {
+                $set: {
+                    admin: true
+                }
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc);
             console.log(result);
             res.json(result);
         })
